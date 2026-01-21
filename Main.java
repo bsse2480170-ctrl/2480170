@@ -1,127 +1,79 @@
-import java.util.*;
-
-class Node {
-    int data;
-    Node left, right;
-    Node(int data) {
-        this.data = data;
-        left = right = null;
+class ArrayQueue{
+    int[] queue;
+    int front, rear, size;
+    ArrayQueue(int capacity){
+        queue=new int[capacity];
+        front=0;
+        rear=-1;
+        size=0;
     }
-}
-
-class BST {
-    Node root;
-
-    void insert(int data) {
-        root = insertRec(root, data);
-    }
-
-    Node insertRec(Node root, int data) {
-        if (root == null) return new Node(data);
-        if (data < root.data) root.left = insertRec(root.left, data);
-        else if (data > root.data) root.right = insertRec(root.right, data);
-        return root;
-    }
-
-    Node delete(Node root, int key) {
-        if (root == null) return null;
-        if (key < root.data) root.left = delete(root.left, key);
-        else if (key > root.data) root.right = delete(root.right, key);
-        else {
-            if (root.left == null) return root.right;
-            else if (root.right == null) return root.left;
-            root.data = minValue(root.right);
-            root.right = delete(root.right, root.data);
+    void resize(){
+        int newCapacity=queue.length*2;
+        int[] newQueue=new int[newCapacity];
+        for(int i=0; i<size; i++){
+            newQueue[i]=queue[front+i];
         }
-        return root;
+        queue=newQueue;
+        front=0;
+        rear=size-1;
+        System.out.println("Array resized to size: "+newCapacity);
     }
-
-    int minValue(Node root) {
-        int minv = root.data;
-        while (root.left != null) {
-            minv = root.left.data;
-            root = root.left;
+    void enqueue(int data){
+        if(size==queue.length){
+            resize();
         }
-        return minv;
+        rear++;
+        queue[rear]=data;
+        size++;
     }
-
-    int countNodes() {
-        return countNodesRec(root);
+    void  dequeue(){
+        if(size==0){
+            System.out.println("Queue is empty");
+            return;
+        }
+        System.out.println("Dequeued:"+queue[rear]);
+        front++;
+        size--;
     }
-
-    int countNodesRec(Node root) {
-        if (root == null) return 0;
-        return 1 + countNodesRec(root.left) + countNodesRec(root.right);
+    void peek(){
+        if(size==0){
+            System.out.println("Queue is empty");
+            return;
+        }
+        System.out.println("Front:"+queue[front]);
     }
-
-    int countLeaves() {
-        return countLeavesRec(root);
-    }
-
-    int countLeavesRec(Node root) {
-        if (root == null) return 0;
-        if (root.left == null && root.right == null) return 1;
-        return countLeavesRec(root.left) + countLeavesRec(root.right);
-    }
-
-    boolean isValidBST() {
-        return isValidBSTRec(root, Integer.MIN_VALUE, Integer.MAX_VALUE);
-    }
-
-    boolean isValidBSTRec(Node root, int min, int max) {
-        if (root == null) return true;
-        if (root.data <= min || root.data >= max) return false;
-        return isValidBSTRec(root.left, min, root.data) && isValidBSTRec(root.right, root.data, max);
-    }
-
-    void levelOrder() {
-        if (root == null) return;
-        Queue<Node> q = new LinkedList<>();
-        q.add(root);
-        while (!q.isEmpty()) {
-            Node temp = q.poll();
-            System.out.print(temp.data + " ");
-            if (temp.left != null) q.add(temp.left);
-            if (temp.right != null) q.add(temp.right);
+    void display(){
+        System.out.println("Queue:");
+        for(int i=0; i<size; i++){
+            System.out.println(queue[front+i]+" ");
         }
         System.out.println();
     }
-
-    void inorder() {
-        inorderRec(root);
-        System.out.println();
-    }
-
-    void inorderRec(Node root) {
-        if (root != null) {
-            inorderRec(root.left);
-            System.out.print(root.data + " ");
-            inorderRec(root.right);
+    void findMinMax(){
+        if(size==0) return ;
+        int min =queue[front];
+        int max=queue[front];
+        for(int i=0; i<size; i++){
+            int val=queue[front+i];
+            if(val<min) min=val;
+            if(val>max) max=val;
         }
+        System.out.println("Min:"+min);
+        System.out.println("Max:"+max);
     }
 }
-
 public class Main {
     public static void main(String[] args) {
-        BST tree = new BST();
-        int[] arr = {5, 1, 3, 4, 2, 6, 7};
-        for (int i : arr) tree.insert(i);
-
-        tree.inorder();
-        tree.levelOrder();
-        System.out.println(tree.countNodes());
-        System.out.println(tree.countLeaves());
-        System.out.println(tree.isValidBST());
-
-        tree.root = tree.delete(tree.root, 2);
-        tree.root = tree.delete(tree.root, 3);
-        tree.root = tree.delete(tree.root, 5);
-
-        tree.inorder();
-        tree.levelOrder();
-        System.out.println(tree.countNodes());
-        System.out.println(tree.countLeaves());
-        System.out.println(tree.isValidBST());
+        ArrayQueue aq = new ArrayQueue(10);
+        aq.enqueue(10);
+        aq.enqueue(20);
+        aq.enqueue(30);
+        aq.display();
+        aq.enqueue(40);
+        aq.display();
+        aq.peek();
+        aq.dequeue();
+        aq.display();
+        aq.findMinMax();
     }
 }
-
